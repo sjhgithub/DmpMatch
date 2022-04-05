@@ -1,10 +1,10 @@
-// DmpMatch.cpp : ¶¨Òå¿ØÖÆÌ¨Ó¦ÓÃ³ÌĞòµÄÈë¿Úµã¡£
+// DmpMatch.cpp : å®šä¹‰æ§åˆ¶å°åº”ç”¨ç¨‹åºçš„å…¥å£ç‚¹ã€‚
 //
 
 #include "stdafx.h"
 
 /*
-**  ½«ÎÄ¼şÊı¾İ¼ÓÔØµ½ÄÚ´æ 
+**  å°†æ–‡ä»¶æ•°æ®åŠ è½½åˆ°å†…å­˜ 
 */
 LPVOID  LoadFileData(LPCTSTR pFileName, DWORD* pFileSize)
 {
@@ -38,7 +38,7 @@ LPVOID  LoadFileData(LPCTSTR pFileName, DWORD* pFileSize)
 }
 
 /*
-**  ½«ÄÚ´æÊı¾İ±£´æµ½ÎÄ¼ş 
+**  å°†å†…å­˜æ•°æ®ä¿å­˜åˆ°æ–‡ä»¶ 
 */
 BOOL   SaveFileData(LPCTSTR pFileName, LPVOID pFileBuffer, DWORD dwFileSize)
 {
@@ -65,7 +65,7 @@ BOOL   SaveFileData(LPCTSTR pFileName, LPVOID pFileBuffer, DWORD dwFileSize)
 }
 
 /*
-**  ¼ì²é£¬²¢Ìæ»»(Exe&Dll)ÎÄ¼şĞÅÏ¢ 
+**  æ£€æŸ¥ï¼Œå¹¶æ›¿æ¢(Exe&Dll)æ–‡ä»¶ä¿¡æ¯ 
 */
 BOOL  MatchFileInfo(MINIDUMP_MODULE* pModule, WCHAR* pModuleName, LPCTSTR  pExeFilePath)
 {
@@ -73,7 +73,7 @@ BOOL  MatchFileInfo(MINIDUMP_MODULE* pModule, WCHAR* pModuleName, LPCTSTR  pExeF
     CHAR*  pFileName;
 
     /*
-    **  ¼ì²éÎÄ¼şÊÇ·ñ´æÔÚ 
+    **  æ£€æŸ¥æ–‡ä»¶æ˜¯å¦å­˜åœ¨ 
     */
 #ifdef _UNICODE
     WideCharToMultiByte(CP_ACP, 0, pExeFilePath, -1, sFilePath, MAX_PATH, NULL, NULL);
@@ -82,16 +82,16 @@ BOOL  MatchFileInfo(MINIDUMP_MODULE* pModule, WCHAR* pModuleName, LPCTSTR  pExeF
 #endif 
     strcat(sFilePath, "\\");
 
-    INT nFileLen = (INT)_tcslen(sFilePath);
+    INT nFileLen = (INT)strlen(sFilePath);
     WideCharToMultiByte(CP_ACP, 0, pModuleName, -1, sFilePath + nFileLen, MAX_PATH - nFileLen, NULL, NULL);
 
-    if ( GetFileAttributes(sFilePath) == INVALID_FILE_ATTRIBUTES )
+    if ( GetFileAttributesA(sFilePath) == INVALID_FILE_ATTRIBUTES )
     {
         return FALSE;
     }
 
     /*
-    **  ¼ÓÔØÎÄ¼şĞÅÏ¢ 
+    **  åŠ è½½æ–‡ä»¶ä¿¡æ¯ 
     */
     sFilePath[nFileLen - 1] = 0;
     pFileName = sFilePath + nFileLen;
@@ -110,9 +110,9 @@ BOOL  MatchFileInfo(MINIDUMP_MODULE* pModule, WCHAR* pModuleName, LPCTSTR  pExeF
     }
 
     /*
-    **  Ìæ»»ÎÄ¼şĞÅÏ¢ 
+    **  æ›¿æ¢æ–‡ä»¶ä¿¡æ¯ 
     */
-    printf("    ¸üĞÂÎÄ¼ş: SizeOfImage: 0x%08X CheckSum: 0x%08X  %s\r\n", dwSizeOfImage, dwCheckSum, pFileName);
+    printf("    æ›´æ–°æ–‡ä»¶: SizeOfImage: 0x%08X CheckSum: 0x%08X  %s\r\n", dwSizeOfImage, dwCheckSum, pFileName);
     //printf("        Old SizeOfImage: 0x%08X CheckSum: 0x%08X\r\n", pModule->SizeOfImage, pModule->CheckSum);
     //printf("        New SizeOfImage: 0x%08X CheckSum: 0x%08X\r\n", dwSizeOfImage, dwCheckSum);
     pModule->SizeOfImage   = dwSizeOfImage;
@@ -122,7 +122,7 @@ BOOL  MatchFileInfo(MINIDUMP_MODULE* pModule, WCHAR* pModuleName, LPCTSTR  pExeF
 }
 
 /*
-**  ½âÎöDmpÎÄ¼ş 
+**  è§£æDmpæ–‡ä»¶ 
 */
 void  ParseDmp(LPVOID pDmpBuffer, DWORD dwDmpLength, LPCTSTR  pExeFilePath)
 {
@@ -141,7 +141,7 @@ void  ParseDmp(LPVOID pDmpBuffer, DWORD dwDmpLength, LPCTSTR  pExeFilePath)
     DWORD  dwModuleCount  = 0;
 
     /*
-    **  1. ÎÄ¼şÍ· 
+    **  1. æ–‡ä»¶å¤´ 
     */
     pHeader = (MINIDUMP_HEADER*)pDmpPos;
     
@@ -149,7 +149,7 @@ void  ParseDmp(LPVOID pDmpBuffer, DWORD dwDmpLength, LPCTSTR  pExeFilePath)
     dwDirOffset = pHeader->StreamDirectoryRva;
 
     /*
-    **  2. ÎÄ¼şÄ¿Â¼ 
+    **  2. æ–‡ä»¶ç›®å½• 
     */
     pDmpPos = pDmpBuf + dwDirOffset;
     for ( DWORD dd = 0; dd < dwDirCount; dd++ )
@@ -157,7 +157,7 @@ void  ParseDmp(LPVOID pDmpBuffer, DWORD dwDmpLength, LPCTSTR  pExeFilePath)
         pDirectory = (MINIDUMP_DIRECTORY*)pDmpPos;
         if ( pDirectory->StreamType == ModuleListStream )
         {
-            // ²éÕÒ¡°Module¡± 
+            // æŸ¥æ‰¾â€œModuleâ€ 
             dwModuleSize   = pDirectory->Location.DataSize;
             dwModuleOffset = pDirectory->Location.Rva;
             break;
@@ -172,7 +172,7 @@ void  ParseDmp(LPVOID pDmpBuffer, DWORD dwDmpLength, LPCTSTR  pExeFilePath)
     }
 
     /*
-    **  3. Ä£¿éÁĞ±í.
+    **  3. æ¨¡å—åˆ—è¡¨.
     */
     pDmpPos = pDmpBuf + dwModuleOffset;
     dwModuleCount = *((DWORD*)pDmpPos);  pDmpPos += sizeof(DWORD);
@@ -195,21 +195,23 @@ void  ParseDmp(LPVOID pDmpBuffer, DWORD dwDmpLength, LPCTSTR  pExeFilePath)
 }
 
 /*
-**  Ê¹ÓÃ°ïÖú 
+**  ä½¿ç”¨å¸®åŠ© 
 */
 void  PrintHelp()
 {
     _tprintf(_T("\r\n"));
-    _tprintf(_T("½âÎöDmpÎÄ¼ş£¬½«Æä¹ØÁªµÄ¼Ó¿Ç³ÌĞòÎÄ¼şĞÅÏ¢(Exe&Dll)£¬ĞŞ¸ÄÎªÎ´¼Ó¿ÇµÄ³ÌĞòÎÄ¼şĞÅÏ¢£¡\r\n"));
+    _tprintf(_T("è§£æDmpæ–‡ä»¶ï¼Œå°†å…¶å…³è”çš„åŠ å£³ç¨‹åºæ–‡ä»¶ä¿¡æ¯(Exe&Dll)ï¼Œä¿®æ”¹ä¸ºæœªåŠ å£³çš„ç¨‹åºæ–‡ä»¶ä¿¡æ¯ï¼\r\n"));
     _tprintf(_T("\r\n"));
-    _tprintf(_T("DmpMatch.exe <DmpÎÄ¼ş> <Î´¼Ó¿Ç³ÌĞòÎÄ¼ş¼Ğ>\r\n"));
-    _tprintf(_T("    ²ÎÊı1£º DmpÎÄ¼şµÄÈ«Â·¾¶Ãû³Æ£»\r\n"));
-    _tprintf(_T("    ²ÎÊı2£º Î´¼Ó¿ÇµÄ³ÌĞòÎÄ¼ş¼Ğ£¡\r\n"));
+    _tprintf(_T("DmpMatch.exe <Dmpæ–‡ä»¶> <æœªåŠ å£³ç¨‹åºæ–‡ä»¶å¤¹>\r\n"));
+    _tprintf(_T("    å‚æ•°1ï¼š Dmpæ–‡ä»¶çš„å…¨è·¯å¾„åç§°ï¼›\r\n"));
+    _tprintf(_T("    å‚æ•°2ï¼š æœªåŠ å£³çš„ç¨‹åºæ–‡ä»¶å¤¹ï¼\r\n"));
     _tprintf(_T("\r\n"));
 }
 
 int _tmain(int argc, _TCHAR* argv[])
 {
+    system("@chcp 65001>nul");
+
     if ( argc < 3 )
     {
         PrintHelp();
@@ -219,29 +221,29 @@ int _tmain(int argc, _TCHAR* argv[])
     LPCTSTR  pDmpFileName = argv[1];
     LPCTSTR  pExeFilePath = argv[2];
     _tprintf(_T("\r\n"));
-    _tprintf(_T("DmpÎÄ¼ş£º %s\r\n"), pDmpFileName);
+    _tprintf(_T("Dmpæ–‡ä»¶ï¼š %s\r\n"), pDmpFileName);
     _tprintf(_T("\r\n"));
 
     /*
-    **  ¼ÓÔØdmpÎÄ¼ş 
+    **  åŠ è½½dmpæ–‡ä»¶ 
     */
     LPVOID  pDmpBuffer = NULL;
     DWORD   nDmpLength = 0;
     pDmpBuffer = LoadFileData(pDmpFileName, &nDmpLength);
     if ( pDmpBuffer == nullptr )
     {
-        _tprintf(_T("¼ÓÔØDmpÎÄ¼şÊ§°Ü£¡"));
+        _tprintf(_T("åŠ è½½Dmpæ–‡ä»¶å¤±è´¥ï¼"));
         _tprintf(_T("\r\n"));
         return -1;
     }
 
     /*
-    **  ½âÎöDmpÎÄ¼ş 
+    **  è§£æDmpæ–‡ä»¶ 
     */
     ParseDmp(pDmpBuffer, nDmpLength, pExeFilePath);
 
     /*
-    **  ±£´æĞÂdmpÎÄ¼ş 
+    **  ä¿å­˜æ–°dmpæ–‡ä»¶ 
     */
     TCHAR szNewDumpFile[MAX_PATH];
     _tcscpy(szNewDumpFile, pDmpFileName);
@@ -249,7 +251,7 @@ int _tmain(int argc, _TCHAR* argv[])
     SaveFileData(szNewDumpFile, pDmpBuffer, nDmpLength);
     
     /*
-    **  ÊÍ·Å×ÊÔ´ 
+    **  é‡Šæ”¾èµ„æº 
     */
     free(pDmpBuffer);
     _tprintf(_T("\r\n"));
